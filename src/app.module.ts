@@ -16,7 +16,6 @@ const CONFIG_MOD = ConfigModule.forRoot({
 //* Définition du module de connexion à Postgres
 //* avec TypeORM
 const DB_MOD = TypeOrmModule.forRootAsync({
-  imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: (configService: ConfigService) => ({
     type: 'postgres',
