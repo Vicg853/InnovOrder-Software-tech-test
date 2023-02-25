@@ -1,11 +1,11 @@
 import type { Response } from 'express'
 import type { Repository } from 'typeorm'
-import type { CreateUserDTO } from './dto/create-user.dto'
 
 import { Body, Controller, Post, Res } from '@nestjs/common'
 
 import { InjectRepository } from '@nestjs/typeorm'
 
+import { CreateUserDTO } from './dto/create-user.dto'
 import { User } from './users.entity'
 
 @Controller('users')
