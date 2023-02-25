@@ -20,11 +20,11 @@ export class UsersController {
 		//* Etape 1: Vérification de l'existence du nom d'utilisateur
 		const exists = await this.usr_repo.findOne({ 
 			where: { usr_name: new_usr_params.user_name }
-		});
+		})
 
-		if (exists !== null) return res
-			.status(409)
+		if (exists !== null) return res.status(409) 
 			.json({ message: 'Username already exists' })
+		
 
 		//* Etape 2: Création de l'utilisateur
 		const user_creation_query = this.usr_repo.create({
