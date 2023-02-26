@@ -1,3 +1,5 @@
+//* Types pour la réponse de l'API Open Food Facts
+//* avec les données du produit (celles utilisées)
 export interface ProductAPIResponse {
    code: string
    status: 1,
@@ -15,6 +17,7 @@ export interface ProductNotFoundAPI {
    code: string
 }
 
+//* DTO pour les produits
 export class ProductDTO {
    barcode: ProductAPIResponse['code']
    name: ProductAPIResponse['product']['product_name']
