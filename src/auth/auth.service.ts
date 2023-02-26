@@ -15,7 +15,7 @@ export class AuthService {
    constructor(
       @InjectRepository(User)
       private usr_repo: Repository<User>,
-      private jwt_svc: JwtService,
+      private readonly jwt_svc: JwtService,
       private config_svc: ConfigService
    ) {}
 
@@ -39,12 +39,12 @@ export class AuthService {
       
       const payload: JwtPayload = {
          sub: user_id.toString(),
-         exp: parseInt(this.config_svc.get('JWT_EXPIRE_TIME')),
          iss: this.config_svc.get('JWT_ISSUER')
       }
 
       return await this.jwt_svc.signAsync(payload, {
          header,
+         expiresIn: this.config_svc.get('JWT_EXPIRE_TIME'),
          algorithm: this.config_svc.get('JWT_ALGO')
       })
    }
