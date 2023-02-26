@@ -78,6 +78,7 @@ describe('AuthController', () => {
       expect(user_mock.check_pass).toBeCalledWith(user_mock.pass)
       expect(service_res.id).toEqual(user_mock.id)
     })
+    
     it("Does not accept invalid user", async () => {
       jest.spyOn(userRepo, 'findOne').mockImplementation(async () => null)
       jest.spyOn(user_mock, 'check_pass')
@@ -93,6 +94,7 @@ describe('AuthController', () => {
       expect(user_mock.check_pass).not.toBeCalled()
       expect(service_res).toEqual(null)
     })
+
     it("Does not accept invalid password", async () => {
       jest.spyOn(userRepo, 'findOne').mockImplementation(async () => user_mock)
       jest.spyOn(user_mock, 'check_pass').mockImplementation(async () => false)

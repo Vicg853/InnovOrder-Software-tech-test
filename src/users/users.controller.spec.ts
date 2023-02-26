@@ -2,7 +2,7 @@ import type { CreateUserDTO } from './dto/create-user.dto'
 import type { Repository } from 'typeorm'
 
 import { Test, TestingModule } from '@nestjs/testing'
-import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm'
+import { getRepositoryToken } from '@nestjs/typeorm'
 
 import { User } from './users.entity'
 import { UsersController } from './users.controller'
