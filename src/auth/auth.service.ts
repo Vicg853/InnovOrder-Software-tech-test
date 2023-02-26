@@ -1,8 +1,8 @@
 import type { Repository } from 'typeorm'
 import type { JwtHeader, JwtPayload } from 'jsonwebtoken'
 
-import { ConfigService } from '@nestjs/config';
-import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config'
+import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { InjectRepository } from '@nestjs/typeorm'
 
@@ -55,4 +55,18 @@ export class AuthService {
       return token
    }
 
+   async check_token(token: string): Promise<boolean> {
+      try {
+         await this.jwt_svc.verifyAsync(token, {
+            algorithms: this.config_svc.get('JWT_ALGO'),
+            issuer: this.config_svc.get('JWT_ISSUER'),
+            secret: this.config_svc.get('JWT_SECRET')
+         })
+
+         return true
+      } catch(err) {
+         console.log(err)
+         return false
+      }
+   }
 }
