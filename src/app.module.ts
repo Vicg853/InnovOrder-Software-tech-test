@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { HttpModule } from '@nestjs/axios'
 
 import { AppController } from './app.controller'
+
+import { AppService } from './app.service'
+import { AuthService } from './auth/auth.service'
 
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
@@ -29,9 +33,14 @@ const DB_MOD = TypeOrmModule.forRootAsync({
   }),
 })
 
+const HTTP_MOD = HttpModule.register({
+  timeout: 5000,
+  maxRedirects: 0,
+})
+
 @Module({
-  imports: [CONFIG_MOD, DB_MOD, UsersModule, AuthModule],
+  imports: [CONFIG_MOD, DB_MOD, HTTP_MOD, UsersModule, AuthModule],
   controllers: [AppController],
-  providers: [],
+  providers: [AppService, AuthService],
 })
 export class AppModule {}
