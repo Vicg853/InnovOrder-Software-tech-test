@@ -1,3 +1,5 @@
+import type { JwtPayload, JwtHeader } from 'jsonwebtoken'
+
 import { getRepositoryToken } from '@nestjs/typeorm'
 import { Test, TestingModule } from '@nestjs/testing'
 import { JwtService } from '@nestjs/jwt'
@@ -12,16 +14,20 @@ const typeORMUsrRepoMock = {
 	findOne: jest.fn(),
 }
 
+const token_mock = 'token'
 const jwtServiceMock = {
-	sign: jest.fn(),
-  verify: jest.fn()
+	signAsync: jest.fn(async () => token_mock),
+  verifyAsync: jest.fn().mockImplementation(async (token: string) => {
+    if (token === token_mock) return true
+    else throw new Error()
+  })
 }
 
 const configServiceMock = {
 	get: jest.fn((key: string) => {
     switch (key) {
       case 'JWT_ISSUER': return 'test'
-      case 'JWT_EXPIRE_TIME': return '172800'
+      case 'JWT_EXPIRE_TIME': return '2 days'
       case 'JWT_ALGO': return 'HS256'
       case 'JWT_SECRET': return 'secret'
     }
@@ -32,6 +38,7 @@ describe('AuthController', () => {
   let service: AuthService
 	let userRepo: Repository<User>
   let user_mock: User
+  let jwt_mock: JwtService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -45,6 +52,7 @@ describe('AuthController', () => {
 
     service = module.get<AuthService>(AuthService)
 		userRepo = module.get<Repository<User>>(getRepositoryToken(User))
+    jwt_mock = module.get<JwtService>(JwtService)
     user_mock = {
       id: 1,
       usr_name: 'Bob',
@@ -110,5 +118,53 @@ describe('AuthController', () => {
       expect(user_mock.check_pass).toBeCalledWith(user_mock.pass)
       expect(service_res).toEqual(null)
     })
-  }) 
+  })
+
+  describe("JWT based authentication", () => {
+    it("Authenticates user", async () => {
+      jest.spyOn(jwt_mock, 'signAsync')
+      const payload: JwtPayload = {
+        sub: user_mock.id.toString(),
+        iss: configServiceMock.get('JWT_ISSUER')
+      }
+      const header: JwtHeader = {
+        alg: configServiceMock.get('JWT_ALGO'),
+      }
+
+      const auth_res = await service.authenticate(user_mock)
+
+      expect(jwt_mock.signAsync).toBeCalledWith(payload, {
+          header,
+          expiresIn: configServiceMock.get('JWT_EXPIRE_TIME'),
+          algorithm: configServiceMock.get('JWT_ALGO')
+      })
+      expect(auth_res).toEqual(token_mock)
+    })
+
+    it("Checks user's valid token authenticity", async () => {
+      jest.spyOn(jwt_mock, 'verifyAsync')
+
+      const check_res = await service.check_token(token_mock)
+
+      expect(jwt_mock.verifyAsync).toBeCalledWith(token_mock, {
+        issuer: configServiceMock.get('JWT_ISSUER'),
+        algorithms: configServiceMock.get('JWT_ALGO'),
+        secret: configServiceMock.get('JWT_SECRET')
+      })
+      expect(check_res).toBe(true)
+    })
+
+    it("Checks user's invalid token authenticity", async () => {
+      jest.spyOn(jwt_mock, 'verifyAsync')
+
+      const check_res = await service.check_token('invalid_token')
+
+      expect(jwt_mock.verifyAsync).toBeCalledWith('invalid_token', {
+        issuer: configServiceMock.get('JWT_ISSUER'),
+        algorithms: configServiceMock.get('JWT_ALGO'),
+        secret: configServiceMock.get('JWT_SECRET')
+      })
+      expect(check_res).toBe(false)
+    })
+  })
 });
