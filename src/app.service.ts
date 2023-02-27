@@ -26,13 +26,10 @@ export class AppService {
    async fetch_product(barcode: string): Promise<ProductDTO | null> {
       const url = `${OPEN_FOOD_FACTS_API_PRODUCT_URL}${barcode}.json`
 
-      console.log(url)
       //* Query l'API Open Food Facts
       const response: APIRes = await firstValueFrom(
          this.http_svc.get<ProductAPIResponse>(url).pipe(
             catchError((err: AxiosError) => {
-               console.log(JSON.stringify(err))
-               console.log('BBB')
                throw err.status || 500
             })
          )
