@@ -16,6 +16,8 @@ export class AuthGuard implements CanActivate {
 
       const token_rgx = /^Bearer\ /;
       const token_raw = req.headers.authorization;
+      
+      if(!token_raw) return false
 
       if(!token_rgx.test(token_raw)) return false
       const token = token_raw.replace(token_rgx, '').toString()
