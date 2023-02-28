@@ -75,7 +75,7 @@ export class UsersController {
 		})
 		
 		return res.status(200).json({
-			message: "User with provided credentials couldn't be found"
+			message: "User updated successfully"
 		})
 	}
 }
