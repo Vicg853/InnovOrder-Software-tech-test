@@ -1,0 +1,19 @@
+# Build
+dist
+
+# Node
+node_modules
+
+#Test 
+test
+**/*.spec.*
+
+#Linting 
+.eslintrc
+
+#Env 
+.env*
+
+# Git
+.git
+.gitignore
