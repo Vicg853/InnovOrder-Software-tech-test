@@ -13,6 +13,8 @@ export class UsersService {
       private usr_repo: Repository<User>
    ) {}
 
+   //* Fonction de verification de mot de passe 
+   //* (utilisée pour des mises à jour de compte)
    async pass_check(update_params: UpdateUsrDTO, user_id: string): Promise<boolean | 'notfound' | 'typeorm_err'> {
       try {
          const user = await this.usr_repo.findOne({
@@ -28,16 +30,26 @@ export class UsersService {
 
    }
 
+   //* Fonction de mise à jour de compte
    async update(update_params: UpdateUsrDTO, user_id: string): Promise<boolean | 'typeorm_err'> {
       try {
-         const update = await this.usr_repo.update({
-            id: parseInt(user_id, 10)
-         }, {
-            pass: update_params.new_password,
-            usr_name: update_params.new_user_name
+         //* La méthode update() n'est pas utilisée
+         //* car celle-ci ne declanche pas le BeforeUpdate()
+         //* qui permet de hasher le mot de passe
+         const user = await this.usr_repo.findOne({
+            where: { id: parseInt(user_id, 10) }
          })
 
-         if(update.generatedMaps.length) return false
+         if(user === null) return false
+
+         //* Mise à jour des paramètres reçus
+         if(update_params.new_password !== undefined) 
+            user.pass = update_params.new_password;
+         if(update_params.new_user_name !== undefined) 
+            user.usr_name = update_params.new_user_name;
+
+         await this.usr_repo.save(user)
+         
          return true
       } catch(_) {
          return 'typeorm_err'
