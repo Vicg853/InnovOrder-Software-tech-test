@@ -1,5 +1,5 @@
 import type { Repository } from 'typeorm'
-import type { JwtHeader, JwtPayload } from 'jsonwebtoken'
+import type { JwtHeader, JwtPayload, Jwt } from 'jsonwebtoken'
 
 import { ConfigService } from '@nestjs/config'
 import { Injectable } from '@nestjs/common'
@@ -9,6 +9,9 @@ import { InjectRepository } from '@nestjs/typeorm'
 import type { LoginDTO } from './dto/login.dto'
 
 import { User } from '../users/users.entity'
+import { Request } from 'express'
+
+
 
 @Injectable()
 export class AuthService {
@@ -67,5 +70,27 @@ export class AuthService {
       } catch(err) {
          return false
       }
+   }
+
+   decode_token(token: string): Jwt | null {
+      try {
+         return this.jwt_svc.decode(token, {
+            complete: true
+         }) as Jwt
+      } catch(e) {
+         return null
+      }
+   }
+
+   get_token_in_req(req: Request): Jwt | null {
+      const token_rgx = /^Bearer\ /
+      const token_raw = req.headers.authorization
+      
+      if(!token_raw) return null
+
+      if(!token_rgx.test(token_raw)) return null
+      const token = token_raw.replace(token_rgx, '').toString()
+
+      return this.decode_token(token)
    }
 }
