@@ -6,6 +6,8 @@ import { getRepositoryToken } from '@nestjs/typeorm'
 
 import { User } from './users.entity'
 import { UsersController } from './users.controller'
+import { UsersService } from './users.service'
+import { AuthService } from '@auth/auth.service'
 
 const typeORMUsrRepoMock = {
 	findOne: jest.fn(),
@@ -21,7 +23,9 @@ describe('UsersController', () => {
   	beforeEach(async () => {
     	const module: TestingModule = await Test.createTestingModule({
 			providers: [
-				{ provide: getRepositoryToken(User), useValue: typeORMUsrRepoMock }
+				{ provide: getRepositoryToken(User), useValue: typeORMUsrRepoMock },
+				{ provide: UsersService, useValue: {} },
+				{ provide: AuthService, useValue: {} },
 			],
       	controllers: [UsersController]
     	}).compile()
